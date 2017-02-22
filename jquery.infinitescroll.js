@@ -511,16 +511,16 @@
 
         // Verify if each user provided selector actually finds an element.
         _validate: function infscr_validate(opts) {
+            var isValid = true;  // Assume success.
             for (var key in opts) {
                 if (key.indexOf && key.indexOf('Selector') > -1 && $(opts[key]).length === 0) {
-                    this._debug('INFO | Your item selector [' + key + '] found no elements.');
-                    return false;
+                    this._debug('ERROR | Your selctor [' + key + '] found no elements.');
+                    isValid = false;
                 }
             }
 
-            return true;
+            return isValid;
         },
-
         /*
             ----------------------------
             Public methods
