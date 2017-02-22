@@ -69,7 +69,7 @@
         appendCallback: true,       // Append next page of returned items to existing result list or not.
         bufferPx: 40,
         errorCallback: function () { }, // Callback function
-        id: 0,                      //Instance ID
+        infid: 0,                   //Instance ID
         pixelsFromNavToBottom: undefined,
         prefill: false,             // When the document is smaller than the window, load data until the document is larger or links are exhausted.
         maxPage: undefined,         // Manually controls maximum page: (IF maxPage is undefined THEN maximum page limitation will not work).
