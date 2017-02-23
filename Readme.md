@@ -1,20 +1,10 @@
-Unfortunately this project is **no longer maintained**. 
-
-It's had strong contributors over the years but it's time to clearly set expectations.  We are unlikely to ship a new version, add features or fix bugs.
-
-IMO, the only way forward with this project is a 100% rewrite with a new API. If you're interested in owning that, please get in touch. ~ @paulirish, april 2015
-
-PS. Thank you very much to all the [contributors](https://github.com/infinite-scroll/infinite-scroll/graphs/contributors) over the years. It's been a fun time helping the internet scroll their way to more good stuff. :)
-
-<hr>
-
 # Infinite Scroll
 
 <http://www.infinite-scroll.com/>
 
 The jQuery and WordPress Plugins:
 
-* jQuery Plugin <http://www.infinite-scroll.com/infinite-scroll-jquery-plugin/> `v2.0.2`
+* jQuery Plugin `v2.1.0`
 * WordPress Plugin <http://www.infinite-scroll.com/installation/>
 
 
@@ -63,42 +53,64 @@ Better documentation coming soon.
 
 ```javascript
 $('.selector').infinitescroll({
-  loading: {
-    finished: undefined,
-    finishedMsg: "<em>Congratulations, you've reached the end of the internet.</em>",
-                img: null,
-    msg: null,
-    msgText: "<em>Loading the next set of posts...</em>",
-    selector: null,
-    speed: 'fast',
-    start: undefined
-  },
-  state: {
-    isDuringAjax: false,
-    isInvalidPage: false,
-    isDestroyed: false,
-    isDone: false, // For when it goes all the way through the archive.
-    isPaused: false,
-    currPage: 1
-  },
-  behavior: undefined,
-  binder: $(window), // used to cache the selector for the element that will be scrolling
-  nextSelector: "div.navigation a:first",
-  navSelector: "div.navigation",
-  contentSelector: null, // rename to pageFragment
-  extraScrollPx: 150,
-  itemSelector: "div.post",
-  animate: false,
-  pathParse: undefined,
-  dataType: 'html',
-  appendCallback: true,
-  bufferPx: 40,
-  errorCallback: function () { },
-  infid: 0, //Instance ID
-  pixelsFromNavToBottom: undefined,
-  path: undefined, // Can either be an array of URL parts (e.g. ["/page/", "/"]) or a function that accepts the page number and returns a URL
-  maxPage:undefined // to manually control maximum page (when maxPage is undefined, maximum page limitation is not work)
-});
+        debug: false,               // Toggle diplays of debugging messages via console.log().
+        infid: 0,                   //Instance ID
+
+        // Page result loading params.
+        loading: {
+            // Function hooks.
+            start: undefined,       // Triggers BEFORE first fetch of the next page results.
+            finished: undefined,    // Triggers AFTER appending the data to existing results list.
+
+            // Message display params.
+            selector: null,         // Puts the load message in a specific selector. Defaults to the contentSelector.
+            msgText: '<em>Loading the next set of posts...</em>',
+            finishedMsg: "<em>Congratulations, you've reached the end of the internet.</em>",
+            msg: null,              // Contains the HTML of the loading message. Gets generated from the option values.
+            speed: 'fast',          // When 'animate' is TRUE it sets the speed of the jQuery animate function.
+            img: 'img/loading-spinner.gif',
+        },
+        state: {
+            isDuringAjax: false,
+            isInvalidPage: false,
+            isDestroyed: false,
+            isDone: false,          // TRUE when no more results pages to fetch.
+            isPaused: false,
+            isBeyondMaxPage: false,
+            currPage: 1
+        },
+
+        errorCallback: function () { }, // Callback function
+        behavior: undefined,        // Used to over-ride a single default function behaviour.
+                                    // Requires a function added to the initialization options that begins with the same function name you want to 
+                                    // over-ride followed by the underscore '_', and followed by whatever unique string value you set in 'behaviour'.
+
+        // jQuery selectors.
+        containterSelector: 'div.container-results',
+        navSelector: 'a [title="Next"]',
+        nextSelector: 'div.navigation a:first',
+        itemSelector: 'div [data-ad-id]',
+        contentSelector: null,      // rename to pageFragment
+        binder: $(window),          // Cache reference to selector.
+
+        // Positioning params.
+        animate: false,             // Use smooth scrolling to ease in the new content.
+        bufferPx: 40,               // Add extra height to distance remaining in the scroll area. Used when calculating trigger for next page load.
+        extraScrollPx: 150,         // Add extra height when smooth scrolling in new content.
+        pixelsFromNavToBottom: undefined,   // Used when calculating trigger for next page load.
+        prefill: false,             // IF the document is smaller than the window THEN load data until the document is larger OR links are exhausted.
+
+        // Result page number params.
+        path: undefined,            // Either parts of a URL as an array (e.g. ["/page/", "/"] or a function that takes the page number and returns a URL.
+        pathParse: undefined,       // Callback function to parse the HREF of [Next Page] <A> element to extract the page number.
+        pathMatch: false,           // Check if current browser path is same as ajax pagination path
+        maxPage: undefined,         // Manually controls maximum page: (IF maxPage is undefined THEN maximum page limitation will not work).
+
+        // AJAX params.
+        appendCallback: true,       // Append next page of returned items to existing result list or not.
+        dataType: 'html',           // Default datatype of fetched paged results. Values are: ()'html', 'html+callback', 'json')
+        template: undefined         // IF dataType == 'json' AND appendCallback == TRUE THEN you must define this function to parse JSON to HTML.
+    });
 ```
 
 
