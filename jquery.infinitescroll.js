@@ -84,33 +84,45 @@
         ----------------------------
         */
 
-        // Bind or unbind from scroll.
-        _binding: function infscr_binding(binding) {
-            var opts = instance.options;
-            var instance = this;
-
-            opts.version = '2.1.1'; // Update the version number.
+        // Bind or unbind from scroll event.
+        // Requires jQuery >= 1.7 to support .on() and .off()
+        // NOTE: jQuery 3.0+ deprecates .bind() and .unbind()
+        // Supports TRUE/FALSE and 'bind'/'unbind' for backwards compatibility but issues warnings.
+        _binding: function infscr_binding(isBind = true) {
+            var opts = this.options;
 
             // IF behavior is defined AND this function is extended THEN call that instead of default.
             if (!!opts.behavior && this['_binding_' + opts.behavior] !== undefined) {
-                this['_binding_' + opts.behavior].call(this);
-                return;
-            }
-
-            if (binding !== 'bind' && binding !== 'unbind') {
-                this._debug('ERROR | Binding value [' + binding + '] is not valid.');
-                return false;
-            }
-
-            if (binding === 'unbind') {
-                (this.options.binder).unbind('smartscroll.infscr.' + instance.options.infid);
+                this['_binding_' + opts.behavior].call(this, isBind);
             } else {
-                (this.options.binder)[binding]('smartscroll.infscr.' + instance.options.infid, function () {
-                    instance.scroll();
-                });
-            }
 
-            this._debug('INFO | Binding == [' + binding + ']');
+                // Validate binding action and issue deprecation warning.
+                if (!(isBind === true || isBind === false)) {
+                    // Check deprecated actions.
+                    if (isBind !== 'bind' && isBind !== 'unbind') {
+                        this._debug('WARN | Binding value [' + isBind + '] is not valid. Using default value of TRUE to bind event.');
+                        isBind = true;
+                    } else {
+                        // Coerce values into TRUE/FALSE.
+                        if (isBind === 'bind') {
+                            this._debug('WARN | Deprecated value "bind". Please use TRUE instead.');
+                            isBind = true;
+                        } else {
+                            this._debug('WARN | Deprecated value "unbind". Please use FALSE instead.');
+                            isBind = false;
+                        }
+                    }
+                }
+
+                // Bind or unBind the 'smartscroll' event for this instance.
+                this._debug('INFO | Binding ==', isBind);
+                var eventType = 'smartscroll.infscr.' + this.options.infid;
+                if (isBind) {
+                    $(this.options.binder).on(eventType, function () { this.scroll(); });
+                } else {
+                    $(this.options.binder).off(eventType);
+                }
+            }
         },
 
         // Fundamental aspects of the plugin are initialized.
@@ -119,11 +131,13 @@
             // Add custom options to defaults.
             var opts = $.extend(true, {}, $.infinitescroll.defaults, options);
             this.options = opts;
-            var $window = $(window);
             var instance = this;
+            var $window = $(window);
+
+            opts.version = '2.1.1';     // Update the version number.
 
             // Validate selectors.
-            if (!instance._validate(options)) {
+            if (!instance._validate(opts)) {
                 // Error. No selectors to validate.
                 this._debug('Error | No element selectors have been set.');
                 return false;
@@ -170,15 +184,13 @@
                 this._debug('INFO | pixelsFromNavToBottom == [' + opts.pixelsFromNavToBottom + ']');
             }
 
-            var self = this;
-
             // Determine loading.start actions.
             opts.loading.start = opts.loading.start || function() {
                 $(opts.navSelector).hide();
                 $(opts.loading.selector).after(opts.loading.msg);
                 opts.loading.msg.show(opts.loading.speed, $.proxy(function() {
                     this.beginAjax(opts);
-                }, self));
+                }, instance));
             };
 
             // Determine loading.finished actions.
@@ -199,7 +211,7 @@
                 }
 
                 if (opts.prefill) {
-                    $window.bind('resize.infinite-scroll', instance._prefill);
+                    $window.on('resize.infinite-scroll', instance._prefill);
                 }
             };
 
@@ -213,40 +225,38 @@
                 }
             }
 
-            this._setup();
+            this._prefill();        // Setup the prefill method for use.
+            this._setup();          // Trigger user callback AFTER initialization and BEFORE binding()
+            this._binding(true);    // Bind to scroll event.
 
-            // Setups the prefill method for use
-            if (opts.prefill) {
-                this._prefill();
-            }
-
-            // Return TRUE to indicate successful creation.
-            return true;
+            return true;            // Return TRUE to indicate successful creation.
         },
 
-        _prefill: function infscr_prefill() {
-            var instance = this;
-            var $window = $(window);
+        _prefill: function infscr_prefill() {            
+            if (this.options.prefill) {
+                var instance = this;
+                var $window = $(window);
 
-            function needsPrefill() {
-                return ( $(instance.options.contentSelector).height() <= $window.height() );
-            }
-
-            this._prefill = function() {
-                if (needsPrefill()) {
-                    instance.scroll();
+                function needsPrefill() {
+                    return ( $(instance.options.contentSelector).height() <= $window.height() );
                 }
 
-                $window.bind('resize.infinite-scroll', function() {
+                this._prefill = function() {
                     if (needsPrefill()) {
-                        $window.unbind('resize.infinite-scroll');
                         instance.scroll();
                     }
-                });
-            };
 
-            // Call self after setting up the new function
-            this._prefill();
+                    $window.on('resize.infinite-scroll', function() {
+                        if (needsPrefill()) {
+                            $window.off('resize.infinite-scroll');
+                            instance.scroll();
+                        }
+                    });
+                };
+
+                // Call self after setting up the new function
+                this._prefill();
+            }
         },
 
         // Console log wrapper.
@@ -342,7 +352,7 @@
             opts.state.currPage = 1;    // IF you need to get back to this instance.
             opts.state.isPaused = false;
             opts.state.isBeyondMaxPage = false;
-            this._binding('unbind');
+            this._binding(false);
         },
 
         // Load Callback funtion.
@@ -482,10 +492,6 @@
                 this['_setup_' + opts.behavior].call(this);
                 return;
             }
-
-            this._binding('bind');
-
-            return false;
         },
 
         // Show done message.
@@ -534,7 +540,7 @@
 
         // Bind to scroll.
         bind: function infscr_bind() {
-            this._binding('bind');
+            this._binding(true);
         },
 
         // Destroy current instance of plugin.
@@ -727,7 +733,7 @@
 
         // Unbind from scroll.
         unbind: function infscr_unbind() {
-            this._binding('unbind');
+            this._binding(false);
         },
 
         // Update Infinite Scroll options.
@@ -824,10 +830,10 @@
 
     event.special.smartscroll = {
         setup: function () {
-            $(this).bind('scroll', event.special.smartscroll.handler);
+            $(this).on('scroll', event.special.smartscroll.handler);
         },
         teardown: function () {
-            $(this).unbind('scroll', event.special.smartscroll.handler);
+            $(this).off('scroll', event.special.smartscroll.handler);
         },
         handler: function (event, execAsap) {
             // Save the context.
@@ -845,6 +851,6 @@
     };
 
     $.fn.smartscroll = function (fn) {
-        return fn ? this.bind('smartscroll', fn) : this.trigger('smartscroll', ['execAsap']);
+        return fn ? this.on('smartscroll', fn) : this.trigger('smartscroll', ['execAsap']);
     };
 }));
