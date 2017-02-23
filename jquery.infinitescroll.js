@@ -79,10 +79,10 @@
     $.infinitescroll.prototype = {
 
         /*
-            ----------------------------
-            Private methods
-            ----------------------------
-            */
+        ----------------------------
+        Private methods
+        ----------------------------
+        */
 
         // Bind or unbind from scroll.
         _binding: function infscr_binding(binding) {
@@ -527,10 +527,10 @@
 
 
         /*
-            ----------------------------
-            Public methods
-            ----------------------------
-            */
+        ----------------------------
+        Public methods
+        ----------------------------
+        */
 
         // Bind to scroll.
         bind: function infscr_bind() {
@@ -668,19 +668,29 @@
         retrieve: function infscr_retrieve(pageNum) {
             var opts = this.options;
             
-            // Validate pageNum for over-ride function.
-            pageNum = pageNum || null;
-
-            // IF behavior is defined AND this function is extended THEN call that instead of default.
-            if (!!opts.behavior && this['retrieve_' + opts.behavior] !== undefined) {
-                this['retrieve_' + opts.behavior].call(this, pageNum);
-                return;
-            }
-
             // For manual triggers: IF the instance is destroyed THEN get out of here.
             if (opts.state.isDestroyed) {
                 this._debug('INFO | Infinite Scroll instance was destroyed.');
                 return false;
+            }
+
+            // IF behavior is defined AND this function is extended THEN call that instead of default.
+            if (!!opts.behavior && this['retrieve_' + opts.behavior] !== undefined) {
+
+                // Validate pageNum for over-ride function. its either a number or NULL.
+                if (typeof(pageNum) == 'string') {
+                    // Convert it to a number if its a string.
+                    var page = parseInt(pageNum);
+                    pageNum = isNaN(page) ? null : page;
+                } else {
+                    // If its not a number then unset it.
+                    if (typeof(pageNum) !== 'number') {
+                        pageNum = null;
+                    }
+                }
+
+                this['retrieve_' + opts.behavior].call(this, pageNum);
+                return true;
             }
 
             // We dont want to fire the ajax multiple times.
