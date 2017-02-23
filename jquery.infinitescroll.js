@@ -137,6 +137,18 @@
                 return false;
             }
 
+            // Validate maxPage number.
+            if (typeof(opts.maxPage) == 'string') {
+                // Convert it to a number if its a string.
+                var maxPage = parseInt(opts.maxPage);
+                opts.maxPage = isNaN(maxPage) ? undefined : maxPage;
+            } else {
+                // If its not a number then unset it.
+                if (typeof(opts.maxPage) !== 'number') {
+                    opts.maxPage = undefined;
+                }
+            }
+
             // Set the path to be a relative URL from root.
             opts.path = opts.path || this._determinepath(path);
 
