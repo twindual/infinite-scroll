@@ -4,7 +4,7 @@
 
 The jQuery and WordPress Plugins:
 
-* jQuery Plugin `v2.1.0`
+* jQuery Plugin `v2.2.0`
 * WordPress Plugin <http://www.infinite-scroll.com/installation/>
 
 
