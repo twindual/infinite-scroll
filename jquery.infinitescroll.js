@@ -5,7 +5,7 @@
    Infinite Scroll
    --------------------------------
    + https://github.com/paulirish/infinite-scroll
-   + version 2.1.1
+   + version 2.2.1
    + Copyright 2011/12 Paul Irish & Luke Shumard
    + Licensed under the MIT license
 
@@ -151,7 +151,7 @@
             var instance = this;
             var $window = $(window);
 
-            opts.version = '2.1.1';     // Update the version number.
+            opts.version = '2.2.0';     // Update the version number.
 
             // Validate selectors.
             if (!instance._validate(opts)) {
