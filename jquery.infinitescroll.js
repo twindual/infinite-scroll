@@ -5,7 +5,7 @@
    Infinite Scroll
    --------------------------------
    + https://github.com/paulirish/infinite-scroll
-   + version 2.2.1
+   + version 2.1.1
    + Copyright 2011/12 Paul Irish & Luke Shumard
    + Licensed under the MIT license
 
@@ -67,11 +67,10 @@
                                     // over-ride followed by the underscore '_', and followed by whatever unique string value you set in 'behaviour'.
 
         // jQuery selectors.
-        containterSelector: 'div.container-results',
         navSelector: 'a [title="Next"]',
         nextSelector: 'div.navigation a:first',
         itemSelector: 'div [data-ad-id]',
-        contentSelector: null,      // rename to pageFragment
+        contentSelector: undefined,      // rename to pageFragment
         binder: $(window),          // Cache reference to selector.
 
         // Positioning params.
@@ -107,35 +106,18 @@
         // Supports TRUE/FALSE and 'bind'/'unbind' for backwards compatibility but issues warnings.
         _binding: function infscr_binding(isBind = true) {
             var opts = this.options;
+            var instance = this;
 
             // IF behavior is defined AND this function is extended THEN call that instead of default.
             if (!!opts.behavior && this['_binding_' + opts.behavior] !== undefined) {
                 this['_binding_' + opts.behavior].call(this, isBind);
             } else {
-
-                // Validate binding action and issue deprecation warning.
-                if (!(isBind === true || isBind === false)) {
-                    // Check deprecated actions.
-                    if (isBind !== 'bind' && isBind !== 'unbind') {
-                        this._debug('WARN | Binding value [' + isBind + '] is not valid. Using default value of TRUE to bind event.');
-                        isBind = true;
-                    } else {
-                        // Coerce values into TRUE/FALSE.
-                        if (isBind === 'bind') {
-                            this._debug('WARN | Deprecated value "bind". Please use TRUE instead.');
-                            isBind = true;
-                        } else {
-                            this._debug('WARN | Deprecated value "unbind". Please use FALSE instead.');
-                            isBind = false;
-                        }
-                    }
-                }
-
                 // Bind or unBind the 'smartscroll' event for this instance.
                 this._debug('INFO | Binding ==', isBind);
                 var eventType = 'smartscroll.infscr.' + this.options.infid;
                 if (isBind) {
-                    $(this.options.binder).on(eventType, function () { this.scroll(); });
+                    // This needs to be updated to .on()
+                    $(this.options.binder).on(eventType, function () { instance.scroll(); });
                 } else {
                     $(this.options.binder).off(eventType);
                 }
@@ -151,19 +133,21 @@
             var instance = this;
             var $window = $(window);
 
-            opts.version = '2.2.0';     // Update the version number.
+            opts.version = '2.1.1';     // Update the version number.
 
             // Validate selectors.
+            console.log(opts);
+
             if (!instance._validate(opts)) {
                 // Error. No selectors to validate.
-                this._debug('Error | No element selectors have been set.');
+                this._debug('ERROR | No element selectors have been set.');
                 return false;
             }
 
             // Validate page fragment path.
             var path = $(opts.nextSelector).attr('href');
             if (!path) {
-                this._debug('Error | Next page selector \'nextSelector\' == [' + opts.nextSelector + '] found no elements with an \'HREF\' attribute.');
+                this._debug('ERROR | Next page selector \'nextSelector\' == [' + opts.nextSelector + '] found no elements with an \'HREF\' attribute.');
                 return false;
             }
 
@@ -540,7 +524,7 @@
             var isValid = true;  // Assume success.
             for (var key in opts) {
                 if (key.indexOf && key.indexOf('Selector') > -1 && $(opts[key]).length === 0) {
-                    this._debug('ERROR | Your selctor [' + key + '] found no elements.');
+                    this._debug('ERROR | Your selctor [' + key + ':' + opts[key] + '] found no elements.');
                     isValid = false;
                 }
             }
