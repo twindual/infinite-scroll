@@ -7,6 +7,9 @@ The jQuery and WordPress Plugins:
 * jQuery Plugin `v2.2.0`
 * WordPress Plugin <http://www.infinite-scroll.com/installation/>
 
+Requires jQuery v1.7 or more recent.
+
+Tested with jQuery v1.12.4, v2.2.4 and v3.1.1 from the Google CDN.
 
 ##Methods##
 A method is a command you can use to control Infinite Scroll once the plugin has been initialized. You can call on any Infinite Scroll method by using `$('.selector').infinitescroll('method-name');`.
@@ -86,11 +89,10 @@ $('.selector').infinitescroll({
                                     // over-ride followed by the underscore '_', and followed by whatever unique string value you set in 'behaviour'.
 
         // jQuery selectors.
-        containterSelector: 'div.container-results',
         navSelector: 'a [title="Next"]',
         nextSelector: 'div.navigation a:first',
         itemSelector: 'div [data-ad-id]',
-        contentSelector: null,      // rename to pageFragment
+        contentSelector: undefined, // rename to pageFragment
         binder: $(window),          // Cache reference to selector.
 
         // Positioning params.
