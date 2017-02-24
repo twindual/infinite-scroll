@@ -92,7 +92,7 @@ $('.selector').infinitescroll({
         navSelector: 'a [title="Next"]',
         nextSelector: 'div.navigation a:first',
         itemSelector: 'div [data-ad-id]',
-        contentSelector: undefined, // rename to pageFragment
+        contentSelector: undefined, // Page fragment' option for .load() / .ajax() calls.
         binder: $(window),          // Cache reference to selector.
 
         // Positioning params.
