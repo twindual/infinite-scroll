@@ -135,8 +135,6 @@
             opts.version = '2.1.1';     // Update the version number.
 
             // Validate selectors.
-            console.log(opts);
-
             if (!instance._validate(opts)) {
                 // Error. No selectors to validate.
                 this._debug('ERROR | No element selectors have been set.');
