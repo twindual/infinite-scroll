@@ -103,7 +103,6 @@
         // Bind or unbind from scroll event.
         // Requires jQuery >= 1.7 to support .on() and .off()
         // NOTE: jQuery 3.0+ deprecates .bind() and .unbind()
-        // Supports TRUE/FALSE and 'bind'/'unbind' for backwards compatibility but issues warnings.
         _binding: function infscr_binding(isBind = true) {
             var opts = this.options;
             var instance = this;
